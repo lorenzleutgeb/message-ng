@@ -157,7 +157,11 @@ public class MainActivity extends AppCompatActivity {
         double count = 0;
         double sum = 0;
         for (Eeg eeg : Eeg.values()) {
-            sum += packet.getEegChannelValue(eeg);
+            double it = packet.getEegChannelValue(eeg);
+            if (Double.isNaN(it)) {
+                continue;
+            }
+            sum += it;
             count += 1;
         }
         return sum / count;
@@ -171,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
      * @param muse  The headband that sent the information.
      */
     public void receiveMuseDataPacket(final MuseDataPacket p, final Muse muse) {
-        Log.d(TAG, "Received data packet");
+        //Log.d(TAG, "Received data packet of type " + p.packetType().toString());
         writeDataPacketToFile(p);
 
         switch (p.packetType()) {
@@ -181,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
             case DELTA_RELATIVE:
             case THETA_RELATIVE:
                 latest.put(p.packetType(), aggregateChannels(p));
+                //Log.d(TAG, latest.toString());
                 break;
             default:
                 break;
@@ -219,6 +224,13 @@ public class MainActivity extends AppCompatActivity {
         this.muse = m;
 
         connect(m);
+    }
+
+    public void refresh() {
+        // Start listening for nearby or paired Muse headbands. We call stopListening
+        // first to make sure startListening will clear the list of headbands and start fresh.
+        manager.stopListening();
+        manager.startListening();
     }
 
     public void connect(Muse muse) {
