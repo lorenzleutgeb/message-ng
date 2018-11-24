@@ -20,6 +20,7 @@ public class EmotionalStateToDictionaryMapper {
 
     public String getEmotionalMapping() {
         // TODO
-        return emotionalDictionary.get(state.getCurrentEmotionalState(Collections.EMPTY_MAP));
+        return "";
+        //return emotionalDictionary.get(state.getCurrentEmotionalState(Collections.EMPTY_MAP));
     }
 }

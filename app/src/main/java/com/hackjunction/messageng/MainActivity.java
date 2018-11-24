@@ -3,59 +3,29 @@ package com.hackjunction.messageng;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.LongSparseArray;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.app.AlertDialog;
 import android.widget.Toast;
-import com.choosemuse.libmuse.AnnotationData;
-import com.choosemuse.libmuse.ConnectionState;
-import com.choosemuse.libmuse.Eeg;
-import com.choosemuse.libmuse.LibmuseVersion;
-import com.choosemuse.libmuse.MessageType;
-import com.choosemuse.libmuse.Muse;
-import com.choosemuse.libmuse.MuseArtifactPacket;
-import com.choosemuse.libmuse.MuseConfiguration;
-import com.choosemuse.libmuse.MuseConnectionListener;
-import com.choosemuse.libmuse.MuseConnectionPacket;
-import com.choosemuse.libmuse.MuseDataListener;
-import com.choosemuse.libmuse.MuseDataPacket;
-import com.choosemuse.libmuse.MuseDataPacketType;
-import com.choosemuse.libmuse.MuseFileFactory;
-import com.choosemuse.libmuse.MuseFileReader;
-import com.choosemuse.libmuse.MuseFileWriter;
-import com.choosemuse.libmuse.MuseListener;
-import com.choosemuse.libmuse.MuseManager;
-import com.choosemuse.libmuse.MuseManagerAndroid;
-import com.choosemuse.libmuse.MuseVersion;
-import com.choosemuse.libmuse.Result;
-import com.choosemuse.libmuse.ResultLevel;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.BitSet;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 requestPermissions(new String[] {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_WIFI_STATE
                 }, 1);
             }
         } else {
@@ -98,6 +69,38 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             permissionCheck();
         }
+
+        //FirebaseFirestore.setLoggingEnabled(true);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> update = new HashMap<>();
+        update.put("startup", new Date());
+        update.put("message", "Hello!");
+        final DocumentReference docRef = db.collection("heartbeat").document(
+            FirebaseInstanceId.getInstance().getId()
+        );
+        docRef.set(update);
+
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d(TAG, "Current data: " + snapshot.getData());
+                    Object o = snapshot.get("message");
+                    if (o == null) {
+                        return;
+                    }
+                    Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
         localBroadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter filter = new IntentFilter();
