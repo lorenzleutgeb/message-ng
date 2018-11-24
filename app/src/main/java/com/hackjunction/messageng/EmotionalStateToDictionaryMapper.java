@@ -1,5 +1,6 @@
 package com.hackjunction.messageng;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +18,8 @@ public class EmotionalStateToDictionaryMapper {
         emotionalDictionary.put(false,"https://www.youtube.com/watch?v=s1tAYmMjLdY");
     }
 
-    public String getEmotionalMapping(){
-        return emotionalDictionary.get(state.getCurrentEmotionalState());
+    public String getEmotionalMapping() {
+        // TODO
+        return emotionalDictionary.get(state.getCurrentEmotionalState(Collections.EMPTY_MAP));
     }
 }

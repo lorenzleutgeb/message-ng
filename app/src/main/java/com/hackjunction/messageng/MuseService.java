@@ -65,6 +65,8 @@ public class MuseService extends Service {
 
     private LocalBroadcastManager localBroadcastManager;
 
+    private final EmotionalStateInterface emotionalStateInterface = new CircumplexModel();
+
     /**
      * We will be updating the UI using a handler instead of in packet handlers because
      * packets come in at a very high frequency and it only makes sense to update the UI
@@ -120,15 +122,10 @@ public class MuseService extends Service {
 
         final ConnectionState current = p.getCurrentConnectionState();
 
-        // Format a message to show the change of connection state in the UI.
         final String status = p.getPreviousConnectionState() + " -> " + current;
         Log.i(TAG, status);
 
         // Update the UI with the change in connection state.
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-
                 //final TextView statusText = (TextView) findViewById(R.id.con_status);
                 //statusText.setText(status);
                 Log.d(TAG, status);
@@ -148,13 +145,12 @@ public class MuseService extends Service {
                     //museVersionText.setText(R.string.undefined);
                     Log.d(TAG, "Version: undefined");
                 }
-            }
-        });
 
         if (current == ConnectionState.DISCONNECTED) {
             Log.i(TAG, "Muse disconnected:" + muse.getName());
             // Save the data file once streaming has stopped.
-            saveFile();
+            //saveFile();
+
             // We have disconnected from the headband, so set our cached copy to null.
             this.muse = null;
         }
@@ -192,7 +188,13 @@ public class MuseService extends Service {
             case DELTA_RELATIVE:
             case THETA_RELATIVE:
                 lastGoodSignal = System.currentTimeMillis();
-                latest.put(p.packetType(), aggregateChannels(p));
+                //latest.put(p.packetType(), aggregateChannels(p));
+                Intent intent = new Intent(MessageNG.WAVE_UPDATE);
+                // TODO: Add beta, gamma, theta.
+                double v = getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN);
+                intent.putExtra(p.packetType().toString(), v);
+                localBroadcastManager.sendBroadcast(intent);
+                Log.d(TAG, p.packetType().toString() + " " + String.valueOf(v));
                 //Log.d(TAG, latest.toString());
                 break;
             default:
@@ -312,16 +314,13 @@ public class MuseService extends Service {
     private final Runnable tickUi = new Runnable() {
         @Override
         public void run() {
-            // TODO: Update UI.
-            if (latest.isEmpty()) {
-                return;
+            if (!latest.isEmpty()) {
+                Log.d(TAG, latest.toString());
+                Intent intent = new Intent(MessageNG.WAVE_UPDATE);
+                // TODO: Add beta, gamma, theta.
+                intent.putExtra("alpha", getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
+                localBroadcastManager.sendBroadcast(intent);
             }
-            Log.d(TAG, latest.toString());
-            Intent intent = new Intent(MessageNG.WAVE_UPDATE);
-            // TODO: Add beta, gamma, theta.
-
-            intent.putExtra("alpha", getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
-            localBroadcastManager.sendBroadcast(intent);
             handler.postDelayed(tickUi, 1000 / 40);
         }
     };
@@ -345,19 +344,31 @@ public class MuseService extends Service {
     private final Runnable retry = new Runnable() {
         @Override
         public void run() {
-            /*
-            if (System.currentTimeMillis() - lastGoodSignal >= 8000) {
-                Log.d(TAG, "Retrying...");
-                if (muse != null) {
+            if (System.currentTimeMillis() - lastGoodSignal >= 8000 && !museIsConnecting() && !museIsConnected()) {
+                if (muse != null && ConnectionState.CONNECTED.equals(muse.getConnectionState())) {
                     muse.disconnect();
                     muse = null;
                 }
+                Log.d(TAG, "Refreshing...");
                 refresh();
             }
             handler.postDelayed(retry, 4000);
-            */
         }
     };
+
+    private boolean museIsConnected() {
+        if (this.muse == null) {
+            return false;
+        }
+        return muse.getConnectionState().equals(ConnectionState.CONNECTED);
+    }
+
+    private boolean museIsConnecting() {
+        if (this.muse == null) {
+            return false;
+        }
+        return muse.getConnectionState().equals(ConnectionState.CONNECTING);
+    }
 
     //--------------------------------------
     // File I/O
