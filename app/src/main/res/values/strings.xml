@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Message NG</string>
+    <string name="permission_dialog_title">Permission Request</string>
+    <string name="permission_dialog_description">We need bluetooth access!</string>
+    <string name="permission_dialog_understand">OK</string>
+    <string name="undefined">undefined</string>
+</resources>
