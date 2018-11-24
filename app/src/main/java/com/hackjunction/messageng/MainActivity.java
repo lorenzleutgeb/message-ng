@@ -37,7 +37,12 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Objects.equals(intent.getAction(), MessageNG.WAVE_UPDATE)) {
-                // TODO: Update UI.
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("emotion")
+                        .document("state")
+                        .update(
+                                "state",intent.getBooleanExtra("state",true)
+                        );
             }
         }
     };
@@ -73,13 +78,9 @@ public class MainActivity extends AppCompatActivity {
         //FirebaseFirestore.setLoggingEnabled(true);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        Map<String, Object> update = new HashMap<>();
-        update.put("startup", new Date());
-        update.put("message", "Hello!");
         final DocumentReference docRef = db.collection("heartbeat").document(
             FirebaseInstanceId.getInstance().getId()
         );
-        docRef.set(update);
 
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
