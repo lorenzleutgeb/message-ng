@@ -8,11 +8,12 @@ import java.util.Map;
  */
 
 public class EmotionalStateToDictionaryMapper {
-    private final Map<Boolean,String> emotionalDictionary = new HashMap<>();
+    private final Map<Boolean,String> emotionalDictionary;
     private final EmotionalStateInterface state;
 
-    public EmotionalStateToDictionaryMapper(EmotionalStateInterface state){
+    public EmotionalStateToDictionaryMapper(EmotionalStateInterface state, Map<Boolean,String> emotionalDictionary){
         this.state = state;
+        this.emotionalDictionary = emotionalDictionary;
     }
 
     public String getEmotionalMapping(){
