@@ -9,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.SeekBar;
 import android.widget.Toast;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -22,7 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -47,12 +46,11 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final SeekBar viewById = (SeekBar) findViewById(R.id.seekBar);
+
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         //    permissionCheck();
         //}
 
-        /*
         //FirebaseFirestore.setLoggingEnabled(true);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -82,24 +80,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
-
             }
         });
-        */
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-        Log.d(TAG, "Progress: " + String.valueOf(progress));
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
     }
 }
