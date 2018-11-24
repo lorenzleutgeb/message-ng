@@ -171,11 +171,9 @@ public class MainActivity extends AppCompatActivity {
      * @param muse  The headband that sent the information.
      */
     public void receiveMuseDataPacket(final MuseDataPacket p, final Muse muse) {
-        //Log.d(TAG, "Received data packet");
+        Log.d(TAG, "Received data packet");
         writeDataPacketToFile(p);
 
-        // valuesSize returns the number of data values contained in the packet.
-        final long n = p.valuesSize();
         switch (p.packetType()) {
             case ALPHA_RELATIVE:
             case BETA_RELATIVE:
@@ -184,9 +182,6 @@ public class MainActivity extends AppCompatActivity {
             case THETA_RELATIVE:
                 latest.put(p.packetType(), aggregateChannels(p));
                 break;
-            case BATTERY:
-            case DRL_REF:
-            case QUANTIZATION:
             default:
                 break;
         }
@@ -233,25 +228,23 @@ public class MainActivity extends AppCompatActivity {
         // listening for other headbands.
         manager.stopListening();
 
-        List<Muse> availableMuses = manager.getMuses();
-
         // Check that we actually have something to connect to.
-            // Cache the Muse that the user has selected.
-            // Unregister all prior listeners and register our data listener to
-            // receive the MuseDataPacketTypes we are interested in.  If you do
-            // not register a listener for a particular data type, you will not
-            // receive data packets of that type.
-            muse.unregisterAllListeners();
-            muse.registerConnectionListener(connectionListener);
-            muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-            muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
-            muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-            muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
-            muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
-            muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
+        // Cache the Muse that the user has selected.
+        // Unregister all prior listeners and register our data listener to
+        // receive the MuseDataPacketTypes we are interested in.  If you do
+        // not register a listener for a particular data type, you will not
+        // receive data packets of that type.
+        muse.unregisterAllListeners();
+        muse.registerConnectionListener(connectionListener);
+        muse.registerDataListener(dataListener, MuseDataPacketType.EEG);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+        muse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
+        muse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
+        muse.registerDataListener(dataListener, MuseDataPacketType.DRL_REF);
+        muse.registerDataListener(dataListener, MuseDataPacketType.QUANTIZATION);
 
-            // Initiate a connection to the headband and stream the data asynchronously.
-            muse.runAsynchronously();
+        // Initiate a connection to the headband and stream the data asynchronously.
+        muse.runAsynchronously();
     }
 
     @Override
@@ -262,10 +255,6 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "Disconnecting from muse");
             this.muse.disconnect();
         }
-    }
-
-    public void toggleConnection(View view) {
-        Log.d(TAG, "Toggle");
     }
 
     @Override
@@ -280,13 +269,15 @@ public class MainActivity extends AppCompatActivity {
 
         Log.i(TAG, "LibMuse version=" + LibmuseVersion.instance().getString());
 
-        WeakReference<MainActivity> weakActivity =
-                new WeakReference<MainActivity>(this);
         connectionListener = new ConnectionListener();
         dataListener = new DataListener();
         manager.setMuseListener(new MuseL());
 
-        this.manager.startListening();
+        manager.startListening();
+
+        // Start up a thread for asynchronous file operations.
+        // This is only needed if you want to do File I/O.
+        fileThread.start();
 
         handler.post(tickUi);
     }
