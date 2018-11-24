@@ -14,6 +14,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -78,9 +79,11 @@ public class MainActivity extends AppCompatActivity {
         //FirebaseFirestore.setLoggingEnabled(true);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        final DocumentReference docRef = db.collection("heartbeat").document(
-            FirebaseInstanceId.getInstance().getId()
-        );
+        //final DocumentReference docRef = db.collection("heartbeat").document(
+        //    FirebaseInstanceId.getInstance().getId()
+        //);
+
+        final DocumentReference docRef = db.collection("emotion").document("state");
 
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -92,11 +95,14 @@ public class MainActivity extends AppCompatActivity {
 
                 if (snapshot != null && snapshot.exists()) {
                     Log.d(TAG, "Current data: " + snapshot.getData());
-                    Object o = snapshot.get("message");
+                    Object o = snapshot.get("state");
                     if (o == null) {
                         return;
                     }
                     Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
+
+                    updateUI(o.toString());
+
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
@@ -109,5 +115,10 @@ public class MainActivity extends AppCompatActivity {
         localBroadcastManager.registerReceiver(broadcastReceiver, filter);
 
         startService(new Intent(MainActivity.this, MuseService.class));
+    }
+
+    public void updateUI(String stateString) {
+        TextView tv1 = findViewById(R.id.stateText);
+        tv1.setText(stateString);
     }
 }
