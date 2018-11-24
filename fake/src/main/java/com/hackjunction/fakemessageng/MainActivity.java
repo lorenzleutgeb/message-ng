@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,12 +43,16 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
             //Toast.makeText(this, "Location permissions are fine!", Toast.LENGTH_SHORT).show();
         }
     }
+     SeekBar viewById;
+     TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final SeekBar viewById = (SeekBar) findViewById(R.id.seekBar);
+
+       viewById = (SeekBar) findViewById(R.id.seekBar);
+       tv= findViewById(R.id.textView);
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         //    permissionCheck();
         //}
@@ -91,6 +96,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
         Log.d(TAG, "Progress: " + String.valueOf(progress));
+        Toast.makeText(getApplicationContext(), String.valueOf(progress),Toast.LENGTH_LONG).show();
+
     }
 
     @Override
@@ -102,4 +109,5 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
+
 }
