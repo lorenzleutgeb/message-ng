@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.SeekBar;
 import android.widget.Toast;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        final SeekBar viewById = (SeekBar) findViewById(R.id.seekBar);
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         //    permissionCheck();
         //}
