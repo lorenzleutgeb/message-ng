@@ -5,11 +5,15 @@ import com.choosemuse.libmuse.MuseDataPacketType;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-public class CircumplexModel implements EmotionalStateInterface{
+public class CircumplexModel {
     ArousalValenceDirectMapping mapping;
     EmotionCategories category;
     public CircumplexModel() {
@@ -28,8 +32,4 @@ public class CircumplexModel implements EmotionalStateInterface{
         return category.valueOf(theta);
     }
 
-    @Override
-    public boolean getCurrentEmotionalState(Map<BrainWave, List<Double>> measurements) {
-        return false;
-    }
 }

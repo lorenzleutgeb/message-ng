@@ -37,7 +37,6 @@ import com.choosemuse.libmuse.Result;
 import com.choosemuse.libmuse.ResultLevel;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,11 +61,11 @@ public class MuseService extends Service {
     private DataListener dataListener;
     private Muse muse;
 
-    private Map<BrainWave, List<Double>> latest = new ConcurrentHashMap<>();
+    private final Map<MuseDataPacketType, Double> latest = new ConcurrentHashMap<>();
 
     private LocalBroadcastManager localBroadcastManager;
 
-    private final EmotionalStateInterface emotionalStateInterface = new CircumplexModel();
+    private final EmotionalStateInterface emotionalStateInterface = new AlphaScaleModel();
 
     /**
      * We will be updating the UI using a handler instead of in packet handlers because
@@ -189,11 +188,12 @@ public class MuseService extends Service {
             case DELTA_RELATIVE:
             case THETA_RELATIVE:
                 lastGoodSignal = System.currentTimeMillis();
-                BrainWave wave = BrainWave.fromMuse(p.packetType());
-                List<Double> prev = getOrDefault(latest, wave, Collections.<Double>emptyList());
-                double v = aggregateChannels(p);
-                prev.add(v);
-                latest.put(wave, prev);
+                //latest.put(p.packetType(), aggregateChannels(p));
+                Intent intent = new Intent(MessageNG.WAVE_UPDATE);
+                // TODO: Add beta, gamma, theta.
+                double v = getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN);
+                intent.putExtra(p.packetType().toString(), v);
+                localBroadcastManager.sendBroadcast(intent);
                 Log.d(TAG, p.packetType().toString() + " " + String.valueOf(v));
                 //Log.d(TAG, latest.toString());
                 break;
@@ -315,11 +315,11 @@ public class MuseService extends Service {
         @Override
         public void run() {
             if (!latest.isEmpty()) {
-                Log.d(TAG, "Ticking UI " + latest.toString());
+                Log.d(TAG, latest.toString());
                 Intent intent = new Intent(MessageNG.WAVE_UPDATE);
-                intent.putExtra("state", emotionalStateInterface.getCurrentEmotionalState(latest));
+                // TODO: Add beta, gamma, theta.
+                intent.putExtra("alpha", getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
                 localBroadcastManager.sendBroadcast(intent);
-                latest = new ConcurrentHashMap<>();
             }
             handler.postDelayed(tickUi, 1000 / 40);
         }
