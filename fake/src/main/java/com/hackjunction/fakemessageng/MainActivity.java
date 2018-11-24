@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
         //    permissionCheck();
         //}
 
-        /*
         //FirebaseFirestore.setLoggingEnabled(true);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -82,24 +81,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
-
             }
         });
-        */
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser){
-        Log.d(TAG, "Progress: " + String.valueOf(progress));
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
     }
 }
