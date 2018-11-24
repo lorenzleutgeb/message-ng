@@ -319,11 +319,19 @@ public class MuseService extends Service {
             Log.d(TAG, latest.toString());
             Intent intent = new Intent(MessageNG.WAVE_UPDATE);
             // TODO: Add beta, gamma, theta.
-            intent.putExtra("alpha", latest.getOrDefault(MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
+
+            intent.putExtra("alpha", getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
             localBroadcastManager.sendBroadcast(intent);
             handler.postDelayed(tickUi, 1000 / 40);
         }
     };
+
+    private static <K, V> V getOrDefault(Map<K, V> map, K key, V value) {
+        if (!map.containsKey(key)) {
+            return value;
+        }
+        return map.get(key);
+    }
 
     /**
      * The runnable that is used to update the UI at 60Hz.
