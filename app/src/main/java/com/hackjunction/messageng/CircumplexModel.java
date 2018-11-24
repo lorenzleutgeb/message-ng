@@ -3,7 +3,12 @@ package com.hackjunction.messageng;
 import com.choosemuse.libmuse.MuseDataPacketType;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -29,6 +34,12 @@ public class CircumplexModel implements EmotionalStateInterface{
 
     @Override
     public boolean getCurrentEmotionalState(Map<BrainWave, double[]> measurements) {
+        boolean containsTheta = measurements.containsKey(BrainWave.THETA);
+        boolean containsAlpha = measurements.containsKey(BrainWave.ALPHA);
+        boolean containsBeta = measurements.containsKey(BrainWave.BETA);
+        boolean containsGamma = measurements.containsKey(BrainWave.GAMMA);
+        this.mapping = new ArousalValenceDirectMapping(containsTheta,containsAlpha,containsBeta,containsGamma);
         return false;
+
     }
 }

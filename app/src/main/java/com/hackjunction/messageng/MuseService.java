@@ -65,7 +65,7 @@ public class MuseService extends Service {
 
     private LocalBroadcastManager localBroadcastManager;
 
-    private final EmotionalStateInterface emotionalStateInterface = new CircumplexModel();
+    private final EmotionalStateInterface emotionalStateInterface = new AlphaScaleModel();
 
     /**
      * We will be updating the UI using a handler instead of in packet handlers because
