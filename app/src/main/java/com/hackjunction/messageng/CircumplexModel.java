@@ -33,16 +33,12 @@ public class CircumplexModel implements EmotionalStateInterface{
     }
 
     @Override
-<<<<<<< HEAD
     public boolean getCurrentEmotionalState(Map<BrainWave, double[]> measurements) {
         boolean containsTheta = measurements.containsKey(BrainWave.THETA);
         boolean containsAlpha = measurements.containsKey(BrainWave.ALPHA);
         boolean containsBeta = measurements.containsKey(BrainWave.BETA);
         boolean containsGamma = measurements.containsKey(BrainWave.GAMMA);
         this.mapping = new ArousalValenceDirectMapping(containsTheta,containsAlpha,containsBeta,containsGamma);
-=======
-    public boolean getCurrentEmotionalState(Map<BrainWave, List<Double>> measurements) {
->>>>>>> ac8bfb7d9b5933d9176d88772ab6226f2f3b7289
         return false;
 
     }
