@@ -79,7 +79,10 @@ public class MainActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
                 Toast.makeText(this, "The permission to get BLE location data is required", Toast.LENGTH_SHORT).show();
             } else {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                requestPermissions(new String[] {
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                }, 1);
             }
         } else {
             Log.i(TAG, "Permissions are fine.");

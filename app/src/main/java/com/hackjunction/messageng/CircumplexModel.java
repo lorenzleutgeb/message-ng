@@ -3,6 +3,7 @@ package com.hackjunction.messageng;
 import com.choosemuse.libmuse.MuseDataPacketType;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.lang.Math.pow;
@@ -28,7 +29,7 @@ public class CircumplexModel implements EmotionalStateInterface{
     }
 
     @Override
-    public boolean getCurrentEmotionalState(Map<BrainWave, double[]> measurements) {
+    public boolean getCurrentEmotionalState(Map<BrainWave, List<Double>> measurements) {
         return false;
     }
 }
