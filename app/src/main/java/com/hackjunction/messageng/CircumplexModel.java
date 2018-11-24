@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
-public class CircumplexModel implements EmotionalStateInterface{
+public class CircumplexModel {
     ArousalValenceDirectMapping mapping;
     EmotionCategories category;
     public CircumplexModel() {
@@ -32,14 +32,4 @@ public class CircumplexModel implements EmotionalStateInterface{
         return category.valueOf(theta);
     }
 
-    @Override
-    public boolean getCurrentEmotionalState(Map<BrainWave, double[]> measurements) {
-        boolean containsTheta = measurements.containsKey(BrainWave.THETA);
-        boolean containsAlpha = measurements.containsKey(BrainWave.ALPHA);
-        boolean containsBeta = measurements.containsKey(BrainWave.BETA);
-        boolean containsGamma = measurements.containsKey(BrainWave.GAMMA);
-        this.mapping = new ArousalValenceDirectMapping(containsTheta,containsAlpha,containsBeta,containsGamma);
-        return false;
-
-    }
 }
