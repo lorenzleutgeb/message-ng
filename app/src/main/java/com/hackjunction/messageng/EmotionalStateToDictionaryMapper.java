@@ -8,12 +8,13 @@ import java.util.Map;
  */
 
 public class EmotionalStateToDictionaryMapper {
-    private final Map<Boolean,String> emotionalDictionary;
+    private final Map<Boolean,String> emotionalDictionary = new HashMap<>();
     private final EmotionalStateInterface state;
 
-    public EmotionalStateToDictionaryMapper(EmotionalStateInterface state, Map<Boolean,String> emotionalDictionary){
+    public EmotionalStateToDictionaryMapper(EmotionalStateInterface state){
         this.state = state;
-        this.emotionalDictionary = emotionalDictionary;
+        emotionalDictionary.put(true,"https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+        emotionalDictionary.put(false,"https://www.youtube.com/watch?v=s1tAYmMjLdY");
     }
 
     public String getEmotionalMapping(){
