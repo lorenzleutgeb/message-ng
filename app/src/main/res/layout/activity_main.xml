@@ -6,11 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <Button
-            android:text="Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" tools:layout_editor_absoluteY="16dp"
-            tools:layout_editor_absoluteX="0dp" android:id="@+id/button" android:onClick="toggleConnection"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

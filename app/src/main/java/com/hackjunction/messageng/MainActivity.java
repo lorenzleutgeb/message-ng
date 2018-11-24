@@ -43,8 +43,10 @@ import com.choosemuse.libmuse.ResultLevel;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,12 +57,8 @@ public class MainActivity extends AppCompatActivity {
     private ConnectionListener connectionListener;
     private DataListener dataListener;
     private Muse muse;
-    private boolean accelStale;
-    private boolean eegStale;
-    private boolean alphaStale;
-    private double[] buffer = new double[6];
-    
-    private Map<>
+
+    private final Map<MuseDataPacketType, Double> latest = new ConcurrentHashMap<>();
 
     /**
      * We will be updating the UI using a handler instead of in packet handlers because
@@ -78,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
     private final AtomicReference<MuseFileWriter> fileWriter = new AtomicReference<>();
 
     private final AtomicReference<Handler> fileHandler = new AtomicReference<>();
-    private Map<MuseDataPacketType, Double> latest;
 
     private class ConnectionListener extends MuseConnectionListener {
         @Override
@@ -180,24 +177,12 @@ public class MainActivity extends AppCompatActivity {
         // valuesSize returns the number of data values contained in the packet.
         final long n = p.valuesSize();
         switch (p.packetType()) {
-            case EEG:
-                //assert(eegBuffer.length >= n);
-                //getEegChannelValues(buffer,p);
-                //eegStale = true;
-                break;
-            case ACCELEROMETER:
-                //assert(accelBuffer.length >= n);
-                //getAccelValues(p);
-                accelStale = true;
-                break;
             case ALPHA_RELATIVE:
             case BETA_RELATIVE:
             case GAMMA_RELATIVE:
             case DELTA_RELATIVE:
             case THETA_RELATIVE:
                 latest.put(p.packetType(), aggregateChannels(p));
-                //assert(alphaBuffer.length >= n);
-                alphaStale = true;
                 break;
             case BATTERY:
             case DRL_REF:
@@ -315,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             }
         } else {
+            Log.i(TAG, "Permissions are fine.");
             //Toast.makeText(this, "Location permissions are fine!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -331,31 +317,13 @@ public class MainActivity extends AppCompatActivity {
     private final Runnable tickUi = new Runnable() {
         @Override
         public void run() {
-            if (eegStale) {
-                //updateEeg();
-            }
-            if (accelStale) {
-                //updateAccel();
-            }
-            if (alphaStale) {
-                //updateAlpha();
+            if (latest.isEmpty()) {
+                return;
             }
             Log.d(TAG, latest.toString());
             handler.postDelayed(tickUi, 1000 / 40);
         }
     };
-
-    private void updateEeg() {
-        double sum = 0;
-        for (double x : buffer) {
-            sum += x;
-        }
-        sum /= (double) buffer.length;
-        if (Double.isNaN(sum)) {
-            return;
-        }
-    	Log.i(TAG, "EEG update: " + sum);
-    }
 
     //--------------------------------------
     // File I/O
