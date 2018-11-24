@@ -55,6 +55,8 @@ public class MuseService extends Service {
 
 	private MuseManagerAndroid manager;
 
+	private long lastGoodSignal;
+
     private ConnectionListener connectionListener;
     private DataListener dataListener;
     private Muse muse;
@@ -70,6 +72,8 @@ public class MuseService extends Service {
      * footprint and makes GC pauses less frequent/noticeable.
      */
     private final Handler handler = new Handler();
+
+    private final Handler handler2 = new Handler();
 
     /**
      * To save data to a file, you should use a MuseFileWriter.  The MuseFileWriter knows how to
@@ -179,7 +183,7 @@ public class MuseService extends Service {
      */
     public void receiveMuseDataPacket(final MuseDataPacket p, final Muse muse) {
         //Log.d(TAG, "Received data packet of type " + p.packetType().toString());
-        writeDataPacketToFile(p);
+        //writeDataPacketToFile(p);
 
         switch (p.packetType()) {
             case ALPHA_RELATIVE:
@@ -187,6 +191,7 @@ public class MuseService extends Service {
             case GAMMA_RELATIVE:
             case DELTA_RELATIVE:
             case THETA_RELATIVE:
+                lastGoodSignal = System.currentTimeMillis();
                 latest.put(p.packetType(), aggregateChannels(p));
                 //Log.d(TAG, latest.toString());
                 break;
@@ -292,6 +297,7 @@ public class MuseService extends Service {
         fileThread.start();
 
         handler.post(tickUi);
+        handler2.post(retry);
     }
 
     /**
@@ -312,9 +318,44 @@ public class MuseService extends Service {
             }
             Log.d(TAG, latest.toString());
             Intent intent = new Intent(MessageNG.WAVE_UPDATE);
-            intent.putExtra("alpha", latest.getOrDefault(MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
+            // TODO: Add beta, gamma, theta.
+
+            intent.putExtra("alpha", getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
             localBroadcastManager.sendBroadcast(intent);
             handler.postDelayed(tickUi, 1000 / 40);
+        }
+    };
+
+    private static <K, V> V getOrDefault(Map<K, V> map, K key, V value) {
+        if (!map.containsKey(key)) {
+            return value;
+        }
+        return map.get(key);
+    }
+
+    /**
+     * The runnable that is used to update the UI at 60Hz.
+     *
+     * We update the UI from this Runnable instead of in packet handlers
+     * because packets come in at high frequency -- 220Hz or more for raw EEG
+     * -- and it only makes sense to update the UI at about 60fps. The update
+     * functions do some string allocation, so this reduces our memory
+     * footprint and makes GC pauses less frequent/noticeable.
+     */
+    private final Runnable retry = new Runnable() {
+        @Override
+        public void run() {
+            /*
+            if (System.currentTimeMillis() - lastGoodSignal >= 8000) {
+                Log.d(TAG, "Retrying...");
+                if (muse != null) {
+                    muse.disconnect();
+                    muse = null;
+                }
+                refresh();
+            }
+            handler.postDelayed(retry, 4000);
+            */
         }
     };
 
