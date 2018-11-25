@@ -16,6 +16,6 @@ public class AlphaScaleModel implements EmotionalStateInterface{
             cnt += 1;
         }
 
-        return (sum / cnt) > 0.5;
+        return (sum / cnt) > 0.14;
     }
 }
