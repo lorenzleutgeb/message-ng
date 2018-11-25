@@ -174,9 +174,11 @@ public class MainActivity extends AppCompatActivity {
 
                     //updateUI(o.toString());
 
-                    //List<Double> newData = (List<Double>)o;
-                    List<Double> newData = Collections.<Double>emptyList();
+                    List<Double> newData = (List<Double>)o;
+                    //List<Double> newData = Collections.<Double>emptyList();
                     double sum = 0;
+
+
                     for(Double y : newData){
                         Long x = System.currentTimeMillis();
                         sum += y;
