@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
         final DocumentReference docRef = db.collection("emotion").document("state");
 
+        //firebase state change listener
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
@@ -175,12 +176,22 @@ public class MainActivity extends AppCompatActivity {
 
                     //List<Double> newData = (List<Double>)o;
                     List<Double> newData = Collections.<Double>emptyList();
+                    double sum = 0;
                     for(Double y : newData){
                         Long x = System.currentTimeMillis();
+                        sum += y;
                         series.appendData(
                                 new DataPoint(x,y),false, 100, false
                         );
                     }
+
+                    //Calculates the average and compares it to the threshhold, to set the boolean state
+                    if (newData.size() != 0) {
+                        double average = sum/newData.size();
+                        if (average < 0.14) state = false;
+                        else state = true;
+                    }
+
 
 
                 } else {
