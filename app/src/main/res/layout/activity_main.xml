@@ -39,7 +39,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/op_ivpic"
             android:layout_width="28dp"
             android:layout_height="28dp"
@@ -50,7 +50,8 @@
             android:src="@drawable/default_profile"
             app:layout_constraintTop_toBottomOf="@+id/user_name"
             tools:layout_editor_absoluteX="193dp"
-            tools:layout_editor_absoluteY="16dp" />
+            tools:layout_editor_absoluteY="16dp"
+            android:onClick="pickSong"/>
 
         <TextView
             android:id="@+id/user_name"

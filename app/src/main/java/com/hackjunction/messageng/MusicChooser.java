@@ -30,16 +30,18 @@ public class MusicChooser extends AppCompatActivity {
 
         audioList = new ArrayList<>();
 
-        String[] proj = { MediaStore.Audio.Media._ID,MediaStore.Audio.Media.DISPLAY_NAME };// Can include more data for more details and check it.
+        String[] proj = { MediaStore.Audio.Media._ID,MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA };// Can include more data for more details and check it.
 
         Cursor audioCursor = getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
 
         if(audioCursor != null){
             if(audioCursor.moveToFirst()){
                 do{
-                    int audioIndex = audioCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
+                    //int audioIndex = audioCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME);
+                    String path = audioCursor.getString(audioCursor.getColumnIndex(MediaStore.Audio.Media.DATA));
 
-                    audioList.add(audioCursor.getString(audioIndex));
+                    //audioList.add(audioCursor.getString(audioIndex));
+                    audioList.add(path);
                 }while(audioCursor.moveToNext());
             }
         }

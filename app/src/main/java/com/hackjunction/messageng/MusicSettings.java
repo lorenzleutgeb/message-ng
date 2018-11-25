@@ -1,5 +1,6 @@
 package com.hackjunction.messageng;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,6 +9,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class MusicSettings extends AppCompatActivity {
+
+    String happySong;
+    String sadSong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,20 +46,31 @@ public class MusicSettings extends AppCompatActivity {
 
     }
 
+    public void exit(View view) {
+
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("happySong", this.happySong);
+        resultIntent.putExtra("sadSong", this.sadSong);
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();
+
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
-                String song = data.getStringExtra("song");
+                this.happySong = data.getStringExtra("song");
                 Button tv1 = findViewById(R.id.happySongButton);
-                tv1.setText(song);
+                tv1.setText(this.happySong);
             }
         } else {
             if (resultCode == RESULT_OK) {
-                String song = data.getStringExtra("song");
+                this.sadSong = data.getStringExtra("song");
                 Button tv1 = findViewById(R.id.sadSongButton);
-                tv1.setText(song);
+                tv1.setText(this.sadSong);
             }
         }
     }

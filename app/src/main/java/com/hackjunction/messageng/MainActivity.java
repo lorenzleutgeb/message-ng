@@ -7,7 +7,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
@@ -34,8 +37,10 @@ import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +49,15 @@ import java.util.Objects;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+
+    private String happySong;
+    private String sadSong;
+
+    private boolean isPlayingSong = false;
+
+    private MediaPlayer mediaPlayer;
+
+    private boolean state = true;
 
     private static final String TAG = "MainActivity";
 
@@ -78,10 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "The permission to get BLE location data is required", Toast.LENGTH_SHORT).show();
             } else {
                 requestPermissions(new String[] {
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.READ_EXTERNAL_STORAGE
-
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_WIFI_STATE
                 }, 1);
             }
         } else {
@@ -160,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
                     //updateUI(o.toString());
 
-                    List<Double> newData = (List<Double>)o;
+                    //List<Double> newData = (List<Double>)o;
+                    List<Double> newData = Collections.<Double>emptyList();
                     for(Double y : newData){
                         Long x = System.currentTimeMillis();
                         series.appendData(
@@ -181,11 +195,6 @@ public class MainActivity extends AppCompatActivity {
         localBroadcastManager.registerReceiver(broadcastReceiver, filter);
 
         startService(new Intent(MainActivity.this, MuseService.class));
-
-
-        //Intent myIntent = new Intent(MainActivity.this, MusicSettings.class);
-        //MainActivity.this.startActivity(myIntent);
-
 
 
 
@@ -212,6 +221,37 @@ public class MainActivity extends AppCompatActivity {
 
     public void didTapPlayButton(View view) {
         animateButton();
+
+
+        if (!this.isPlayingSong) {
+
+            String song;
+            if (state == true) {
+                song = this.happySong;
+            } else {
+                song = this.sadSong;
+            }
+            //MediaPlayer mediaPlayer = MediaPlayer.create(this, Uri.parse(Environment.getExternalStorageDirectory().getPath()+ sadSong));
+            //mediaPlayer.start(); // no need to call prepare(); create() does that for you
+
+            mediaPlayer = new MediaPlayer();
+            try {
+                mediaPlayer.setDataSource(song);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mediaPlayer.start();
+            this.isPlayingSong = true;
+
+        } else {
+            this.mediaPlayer.stop();
+            this.isPlayingSong = false;
+        }
     }
 
     void animateButton() {
@@ -228,5 +268,30 @@ public class MainActivity extends AppCompatActivity {
         button.startAnimation(myAnim);
 
 
+    }
+
+    public void pickSong(View view) {
+        Intent myIntent = new Intent(MainActivity.this, MusicSettings.class);
+        //MainActivity.this.startActivity(myIntent);
+
+        //startActivityForResult(MusicChooser, ActivityTwoRequestCode)
+
+        startActivityForResult(myIntent, 1);
+
+
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                this.happySong = data.getStringExtra("happySong");
+                this.sadSong = data.getStringExtra("sadSong");
+
+                System.out.println(this.happySong);
+            }
+        }
     }
 }
