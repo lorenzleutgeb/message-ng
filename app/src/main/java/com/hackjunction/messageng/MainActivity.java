@@ -254,6 +254,12 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             mediaPlayer.start();
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    isPlayingSong = false;
+                }
+            });
             this.isPlayingSong = true;
 
         } else {
