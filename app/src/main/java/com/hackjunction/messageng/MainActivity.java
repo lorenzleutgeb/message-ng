@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(new String[] {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_WIFI_STATE
+                    Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.READ_EXTERNAL_STORAGE
+
                 }, 1);
             }
         } else {
@@ -115,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
         localBroadcastManager.registerReceiver(broadcastReceiver, filter);
 
         startService(new Intent(MainActivity.this, MuseService.class));
+
+        Intent myIntent = new Intent(MainActivity.this, MusicSettings.class);
+        MainActivity.this.startActivity(myIntent);
     }
 
     public void updateUI(String stateString) {
