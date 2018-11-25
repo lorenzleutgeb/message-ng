@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Map<String, Object> newData = new HashMap<>();
-                newData.put("alpha", 1);
+                newData.put("alpha", Collections.<Double>emptyList());
                 db.collection("emotion").document("state").set(newData);
             }
         });
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Map<String, Object> newData = new HashMap<>();
-                newData.put("alpha", 0);
+                newData.put("alpha", Collections.<Double>emptyList());
                 db.collection("emotion").document("state").set(newData);
             }
         });
