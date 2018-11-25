@@ -35,8 +35,13 @@ import com.choosemuse.libmuse.MuseManagerAndroid;
 import com.choosemuse.libmuse.MuseVersion;
 import com.choosemuse.libmuse.Result;
 import com.choosemuse.libmuse.ResultLevel;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Doubles;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +66,7 @@ public class MuseService extends Service {
     private DataListener dataListener;
     private Muse muse;
 
-    private final Map<MuseDataPacketType, Double> latest = new ConcurrentHashMap<>();
+    private Map<BrainWave, List<Double>> latest = new ConcurrentHashMap<>();
 
     private LocalBroadcastManager localBroadcastManager;
 
@@ -122,13 +127,12 @@ public class MuseService extends Service {
 
         final ConnectionState current = p.getCurrentConnectionState();
 
-        final String status = p.getPreviousConnectionState() + " -> " + current;
+        final String status = muse.getName() + ": " + p.getPreviousConnectionState() + " -> " + current;
         Log.i(TAG, status);
 
         // Update the UI with the change in connection state.
                 //final TextView statusText = (TextView) findViewById(R.id.con_status);
                 //statusText.setText(status);
-                Log.d(TAG, status);
 
                 final MuseVersion museVersion = muse.getMuseVersion();
                 //final TextView museVersionText = (TextView) findViewById(R.id.version);
@@ -167,6 +171,9 @@ public class MuseService extends Service {
             sum += it;
             count += 1;
         }
+        if (count == 0) {
+            return Double.NaN;
+        }
         return sum / count;
     }
 
@@ -188,14 +195,10 @@ public class MuseService extends Service {
             case DELTA_RELATIVE:
             case THETA_RELATIVE:
                 lastGoodSignal = System.currentTimeMillis();
-                //latest.put(p.packetType(), aggregateChannels(p));
-                Intent intent = new Intent(MessageNG.WAVE_UPDATE);
-                // TODO: Add beta, gamma, theta.
-                double v = getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN);
-                intent.putExtra(p.packetType().toString(), v);
-                localBroadcastManager.sendBroadcast(intent);
-                Log.d(TAG, p.packetType().toString() + " " + String.valueOf(v));
-                //Log.d(TAG, latest.toString());
+                final BrainWave wave = BrainWave.fromMuse(p.packetType());
+                final List<Double> v = getOrDefault(latest, wave, new ArrayList<Double>());
+                v.add(aggregateChannels(p));
+                latest.put(wave, v);
                 break;
             default:
                 break;
@@ -218,7 +221,7 @@ public class MuseService extends Service {
      * In this example, we update the spinner with the MAC address of the headband.
      */
     public void museListChanged() {
-        Log.i(TAG, "Muse list changed.");
+        //Log.i(TAG, "Muse list changed.");
         final List<Muse> list = manager.getMuses();
 
         if (list.isEmpty()) {
@@ -244,7 +247,7 @@ public class MuseService extends Service {
     }
 
     public void connect(Muse muse) {
-        Log.d(TAG, "Connecting to " + muse.getName());
+        //Log.d(TAG, "Connecting to " + muse.getName());
         // Listening is an expensive operation, so now that we know
         // which headband the user wants to connect to we can stop
         // listening for other headbands.
@@ -267,6 +270,7 @@ public class MuseService extends Service {
 
         // Initiate a connection to the headband and stream the data asynchronously.
         muse.runAsynchronously();
+        //muse.connect();
     }
 
     @Override
@@ -317,11 +321,13 @@ public class MuseService extends Service {
             if (!latest.isEmpty()) {
                 Log.d(TAG, latest.toString());
                 Intent intent = new Intent(MessageNG.WAVE_UPDATE);
-                // TODO: Add beta, gamma, theta.
-                intent.putExtra("alpha", getOrDefault(latest, MuseDataPacketType.ALPHA_RELATIVE, Double.NaN));
+                EmotionalStateInterface emotionalStateInterface = new AlphaScaleModel();
+                intent.putExtra("state", emotionalStateInterface.getCurrentEmotionalState(latest));
+                intent.putExtra("alpha", Doubles.toArray(getOrDefault(latest, BrainWave.ALPHA, Collections.<Double>emptyList())));
+                latest = new ConcurrentHashMap<>();
                 localBroadcastManager.sendBroadcast(intent);
             }
-            handler.postDelayed(tickUi, 1000 / 40);
+            handler.postDelayed(tickUi, 200);
         }
     };
 
@@ -479,10 +485,10 @@ public class MuseService extends Service {
                     MuseDataPacket packet = fileReader.getDataPacket();
                     Log.i(tag, "data packet: " + packet.packetType().toString());
                     break;
-                case VERSION:
-                    MuseVersion version = fileReader.getVersion();
-                    Log.i(tag, "version" + version.getFirmwareType());
-                    break;
+                //case VERSION:
+                //    MuseVersion version = fileReader.getVersion();
+                //    Log.i(tag, "version" + version.getFirmwareType());
+                //    break;
                 case CONFIGURATION:
                     MuseConfiguration config = fileReader.getConfiguration();
                     Log.i(tag, "config" + config.getBluetoothMac());
