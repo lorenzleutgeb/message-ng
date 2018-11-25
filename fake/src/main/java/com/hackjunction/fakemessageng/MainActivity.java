@@ -10,6 +10,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
             //Toast.makeText(this, "Location permissions are fine!", Toast.LENGTH_SHORT).show();
         }
     }
+    Button button;
+    Button button2;
     SeekBar viewById;
     TextView seekBarValue;
     FirebaseFirestore db;
@@ -62,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         viewById = (SeekBar) findViewById(R.id.seekBar);
         seekBarValue = findViewById(R.id.textView);
+        button = findViewById(R.id.button);
+        button2 = findViewById(R.id.button2);
         //final BigDecimal[] latest = {BigDecimal.valueOf(0)};
         viewById.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
@@ -90,6 +96,22 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
             }
 
+        });
+        button.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Map<String, Object> newData = new HashMap<>();
+                newData.put("alpha", 1);
+                db.collection("emotion").document("state").set(newData);
+            }
+        });
+        button2.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Map<String, Object> newData = new HashMap<>();
+                newData.put("alpha", 0);
+                db.collection("emotion").document("state").set(newData);
+            }
         });
             /*
             private final Runnable tickUi = new Runnable() {
