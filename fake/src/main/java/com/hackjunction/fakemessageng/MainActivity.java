@@ -3,6 +3,7 @@ package com.hackjunction.fakemessageng;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     SeekBar viewById;
     TextView seekBarValue;
     FirebaseFirestore db;
+    //private final Handler handler = new Handler();
+    //Map<String, Object> latest = new HashMap<>();
+    int counter = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,17 +62,22 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         viewById = (SeekBar) findViewById(R.id.seekBar);
         seekBarValue = findViewById(R.id.textView);
+        //final BigDecimal[] latest = {BigDecimal.valueOf(0)};
         viewById.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress,
                                           boolean fromUser) {
-                // TODO Auto-generated method stub
                 BigDecimal b = BigDecimal.valueOf(progress).movePointLeft(9);
+                //latest.put("alpha",Collections.singletonList(b.doubleValue()));
                 seekBarValue.setText( b.toString());
-                Map<String, Object> newData = new HashMap<>();
-                newData.put("alpha",Collections.singletonList(b.doubleValue()));
-                db.collection("emotion").document("state").set(newData);
+                counter++;
+                if (counter >= 5) {
+                    Map<String, Object> newData = new HashMap<>();
+                    newData.put("alpha", Collections.singletonList(b.doubleValue()));
+                    db.collection("emotion").document("state").set(newData);
+                    counter = 0;
+                }
             }
 
             @Override
@@ -79,8 +89,21 @@ public class MainActivity extends AppCompatActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // TODO Auto-generated method stub
             }
-        });
 
+        });
+            /*
+            private final Runnable tickUi = new Runnable() {
+                @Override
+                public void run() {
+                    if (!latest.isEmpty()) {
+                        Log.d(TAG, latest.toString());
+                        db.collection("emotion").document("state").set(latest);
+                        latest.clear();
+                    }
+                    handler.postDelayed(tickUi, 200);
+                }
+            };
+            */
 
     //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         //    permissionCheck();
