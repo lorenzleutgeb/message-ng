@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Objects.equals(intent.getAction(), MessageNG.WAVE_UPDATE)) {
+
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 double[] alpha = intent.getDoubleArrayExtra("alpha");
                 List<Double> alphaList = new ArrayList<>(alpha.length);
@@ -91,9 +92,9 @@ public class MainActivity extends AppCompatActivity {
     // Brian Code ¡¡¡¡¡
     private LineGraphSeries<DataPoint> series;
 
-    private final Handler handler= new Handler();
+    //private final Handler handler= new Handler();
 
-    private final Runnable r = new Runnable() {
+    /*private final Runnable r = new Runnable() {
         private int x = 0;
         @Override
         public void run() {
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             x++;
             handler.postDelayed(r,20);
         }
-    };
+    };*/
 
     double start = -5;
     double end = 5;
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         // !! Brian Code
 
-        handler.post(r);
+        //handler.post(r);
 
         getSupportActionBar().hide();
         initGraph();
@@ -150,13 +151,22 @@ public class MainActivity extends AppCompatActivity {
 
                 if (snapshot != null && snapshot.exists()) {
                     Log.d(TAG, snapshot.getData().toString());
-                    Object o = snapshot.get("state");
+                    Object o = snapshot.get("alpha");
                     if (o == null) {
                         return;
                     }
-                    Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
 
                     //updateUI(o.toString());
+
+                    List<Double> newData = (List<Double>)o;
+                    for(Double y : newData){
+                        Long x = System.currentTimeMillis();
+                        series.appendData(
+                                new DataPoint(x,y),false, 100, false
+                        );
+                    }
+
 
                 } else {
                     Log.d(TAG, "Current data: null");
