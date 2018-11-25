@@ -22,4 +22,5 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("com.hackjunction.fakemessageng", appContext.getPackageName());
-    
+    }
+}

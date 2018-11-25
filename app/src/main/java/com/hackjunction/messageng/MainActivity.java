@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!this.isPlayingSong) {
             String song;
-            if (state == true) {
+            if (state) {
                 song = this.happySong;
             } else {
                 song = this.sadSong;
@@ -285,13 +285,8 @@ public class MainActivity extends AppCompatActivity {
     public void pickSong(View view) {
         Intent myIntent = new Intent(MainActivity.this, MusicSettings.class);
         //MainActivity.this.startActivity(myIntent);
-
         //startActivityForResult(MusicChooser, ActivityTwoRequestCode)
-
         startActivityForResult(myIntent, 1);
-
-
-
     }
 
     @Override
