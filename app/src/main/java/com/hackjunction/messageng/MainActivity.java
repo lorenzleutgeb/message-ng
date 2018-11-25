@@ -22,6 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.common.collect.Lists;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -33,8 +34,11 @@ import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -50,10 +54,16 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (Objects.equals(intent.getAction(), MessageNG.WAVE_UPDATE)) {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
+                double[] alpha = intent.getDoubleArrayExtra("alpha");
+                List<Double> alphaList = new ArrayList<>(alpha.length);
+                for (Double x : alpha) {
+                    alphaList.add(x);
+                }
                 db.collection("emotion")
                         .document("state")
                         .update(
-                                "state",intent.getBooleanExtra("state",true)
+                                "state", intent.getBooleanExtra("state",true),
+                                "alpha", alphaList
                         );
             }
         }
@@ -139,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    Log.d(TAG, "Current data: " + snapshot.getData());
+                    Log.d(TAG, snapshot.getData().toString());
                     Object o = snapshot.get("state");
                     if (o == null) {
                         return;
