@@ -235,9 +235,7 @@ public class MainActivity extends AppCompatActivity {
     public void didTapPlayButton(View view) {
         animateButton();
 
-
         if (!this.isPlayingSong) {
-
             String song;
             if (state == true) {
                 song = this.happySong;
@@ -249,6 +247,10 @@ public class MainActivity extends AppCompatActivity {
 
             mediaPlayer = new MediaPlayer();
             try {
+                if (song == null) {
+                    Toast.makeText(this, "Please select a song first!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mediaPlayer.setDataSource(song);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -279,8 +281,6 @@ public class MainActivity extends AppCompatActivity {
         // Animate the button
         Button button = (Button)findViewById(R.id.button);
         button.startAnimation(myAnim);
-
-
     }
 
     public void pickSong(View view) {
