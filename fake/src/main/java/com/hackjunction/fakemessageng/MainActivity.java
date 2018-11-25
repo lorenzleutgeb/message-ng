@@ -12,9 +12,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -29,9 +31,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
+    public static String stateToString(boolean state) {
+        return state ? "happy" : "sad";
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void permissionCheck() {
@@ -49,8 +57,7 @@ public class MainActivity extends AppCompatActivity {
             //Toast.makeText(this, "Location permissions are fine!", Toast.LENGTH_SHORT).show();
         }
     }
-    Button button;
-    Button button2;
+    ToggleButton button;
     SeekBar viewById;
     TextView seekBarValue;
     FirebaseFirestore db;
@@ -67,7 +74,6 @@ public class MainActivity extends AppCompatActivity {
         viewById = (SeekBar) findViewById(R.id.seekBar);
         seekBarValue = findViewById(R.id.textView);
         button = findViewById(R.id.button);
-        button2 = findViewById(R.id.button2);
         //final BigDecimal[] latest = {BigDecimal.valueOf(0)};
         viewById.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
 
@@ -81,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
                 if (counter >= 5) {
                     Map<String, Object> newData = new HashMap<>();
                     newData.put("alpha", Collections.singletonList(b.doubleValue()));
+                    ToggleButton tb = (ToggleButton) findViewById(R.id.button);
+                    newData.put("state", tb.isChecked());
                     db.collection("emotion").document("state").set(newData);
                     counter = 0;
                 }
@@ -97,19 +105,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-        button.setOnClickListener(new Button.OnClickListener(){
+        button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Map<String, Object> newData = new HashMap<>();
                 newData.put("alpha", Collections.<Double>emptyList());
-                db.collection("emotion").document("state").set(newData);
-            }
-        });
-        button2.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                Map<String, Object> newData = new HashMap<>();
-                newData.put("alpha", Collections.<Double>emptyList());
+                newData.put("state", isChecked);
                 db.collection("emotion").document("state").set(newData);
             }
         });

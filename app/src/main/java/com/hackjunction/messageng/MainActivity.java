@@ -63,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
     private LocalBroadcastManager localBroadcastManager;
 
+    public static String stateToString(boolean state) {
+        return state ? "happy" : "sad";
+    }
+
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -94,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(new String[] {
                         Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_WIFI_STATE
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
                 }, 1);
             }
         } else {
@@ -170,32 +175,23 @@ public class MainActivity extends AppCompatActivity {
                     if (o == null) {
                         return;
                     }
-                    //Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
-
                     //updateUI(o.toString());
 
                     List<Double> newData = (List<Double>)o;
-                    //List<Double> newData = Collections.<Double>emptyList();
-                    double sum = 0;
-
 
                     for(Double y : newData){
                         Long x = System.currentTimeMillis();
-                        sum += y;
                         series.appendData(
                                 new DataPoint(x,y),false, 100, false
                         );
                     }
 
-                    //Calculates the average and compares it to the threshhold, to set the boolean state
-                    if (newData.size() != 0) {
-                        double average = sum/newData.size();
-                        if (average < 0.14) state = false;
-                        else state = true;
+                    Object rawState = snapshot.get("state");
+                    if (rawState == null) {
+                        state = false;
+                    } else {
+                        state = (boolean) ((Boolean) rawState);
                     }
-
-
-
                 } else {
                     Log.d(TAG, "Current data: null");
                 }
@@ -208,9 +204,6 @@ public class MainActivity extends AppCompatActivity {
         localBroadcastManager.registerReceiver(broadcastReceiver, filter);
 
         startService(new Intent(MainActivity.this, MuseService.class));
-
-
-
     }
 
     /*public void updateUI(String stateString) {
@@ -248,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = new MediaPlayer();
             try {
                 if (song == null) {
-                    Toast.makeText(this, "Please select a song first!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Please select a song first! (" + stateToString(state) + ")", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 mediaPlayer.setDataSource(song);
